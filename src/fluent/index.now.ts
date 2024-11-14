@@ -1,6 +1,5 @@
 import '@servicenow/sdk/global'
 import { BusinessRule, ClientScript } from '@servicenow/sdk/core'
-import { showStateUpdate } from '../server/script.js'
 
 //creates a client script that pops up 'Table loaded successfully!!' message everytime todo record is loaded
 ClientScript({
@@ -15,9 +14,10 @@ ClientScript({
     messages: '',
     isolate_script: false,
     type: 'onLoad',
-    script: script`function onLoad() {
-        g_form.addInfoMessage("Table loaded successfully!!")
-    }`,
+    script: script`
+             function onLoad() {
+                     g_form.addInfoMessage("Table loaded successfully!!")
+                 }`,
 })
 
 //creates a business rule that pops up state change message whenever a todo record is updated
@@ -25,9 +25,12 @@ BusinessRule({
     $id: Now.ID['br0'],
     action: ['update'],
     table: 'incident',
-    script: showStateUpdate,
     name: 'LogStateChange',
     order: 100,
     when: 'after',
     active: true,
+    script: script`
+             const { showStateUpdate } = require('./src/server/script.js')
+             showStateUpdate(current, previous)`,
+    abort_action: false,
 })
